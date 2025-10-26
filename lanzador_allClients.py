@@ -89,33 +89,33 @@ if collections.Counter(lista_clientes) == collections.Counter(lista):
 #n_clientes = 15
 print(n_clientes)
 
-inicio = time.time()
-lista_clientes = edificios
+if __name__ == '__main__':
+    inicio = time.time()
+    lista_clientes = edificios
 
+    server = multiprocessing.Process(target=start_server, args=(n_clientes, lista_clientes, lastCommits, rondas, alpha,lr))
+    server.start()
+    time.sleep(30)
 
-server = multiprocessing.Process(target=start_server, args=(n_clientes, lista_clientes, lastCommits, rondas, alpha,lr))
-server.start()
-time.sleep(30)
+    for i in range(n_clientes):
+        inx = i + 1
+        p = multiprocessing.Process(target=start_client, args=(inx, lista_clientes, lastCommits))
+        p.start()
+        clients.append(p)
 
-for i in range(n_clientes):
-    inx = i + 1
-    p = multiprocessing.Process(target=start_client, args=(inx, lista_clientes, lastCommits))
-    p.start()
-    clients.append(p)
+    server.join()
+    for client in clients:
+        client.join()
+    fin = time.time()
+    tiempo = fin - inicio
+    del fin, inicio
 
-server.join()
-for client in clients:
-    client.join()
-fin = time.time()
-tiempo = fin - inicio
-del fin, inicio
-
-labelsAndDist = pd.read_csv(dir_base + '/01.k-prot-clustering/kprototypes-labels-dist-iii15.csv', sep=";")
-resWO = np.zeros((labelsAndDist.shape[0], 7))
-resW = np.zeros((labelsAndDist.shape[0], 7))
-count = 0
-import time
-time.sleep(30)
+    labelsAndDist = pd.read_csv(dir_base + '/01.k-prot-clustering/kprototypes-labels-dist-iii15.csv', sep=";")
+    resWO = np.zeros((labelsAndDist.shape[0], 7))
+    resW = np.zeros((labelsAndDist.shape[0], 7))
+    count = 0
+    import time
+    time.sleep(30)
 
 
 """
