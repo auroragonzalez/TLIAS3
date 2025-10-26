@@ -1,0 +1,13 @@
+1. Install python3.10
+
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt update
+sudo apt install python3.10 python3.10-venv python3.10-dev -y
+
+2. Create and activate a virtual environment:
+python3.10 -m venv excellCity-FLTL
+source excellCity-FLTL/bin/activate
+
+3. Upgrade pip: pip install --upgrade pip
+
+4. Install the requirements: pip install -r requirements.txt
