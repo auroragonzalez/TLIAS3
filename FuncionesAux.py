@@ -687,7 +687,7 @@ def transfer_learning(cluster, lastCommits, resWO, resW, count, n_muestras):
     json_file.close()
     loaded_model = model_from_json(loaded_model_json)
     # load weights into new model
-    loaded_model.load_weights(dir_base + "/transfer-learning/modelsProtoScaled5/mod" + str(cluster+1) + ".h5")
+    loaded_model.load_weights(dir_base + "/transfer-learning/modelsProtoScaled5/mod" + str(cluster+1) + ".weights.h5")
     print("Loaded model " + str(i) + " from disk")
 
     for nm in indx:
@@ -859,7 +859,7 @@ class tfmlpClient(fl.client.NumPyClient):
             with open(dir_base + "/transfer-learning/modelsProtoScaled5/mod" + str(self.party_number) + ".json", "w") as json_file:
                 json_file.write(mod_json)
             # serialize weights to HDF5
-            self.model.save_weights(dir_base + "/transfer-learning/modelsProtoScaled5/mod" + str(self.party_number) + ".h5")
+            self.model.save_weights(dir_base + "/transfer-learning/modelsProtoScaled5/mod" + str(self.party_number) + ".weights.h5")
             print("Saved model" + str(self.party_number) + " to disk")
 
         scaler_cons = self.scaler
@@ -928,11 +928,11 @@ class tfmlpClient(fl.client.NumPyClient):
 
 
 def fedplus(weights, mean, theta):
-    z = numpy.asarray(mean)
-    weights = numpy.asarray(weights)
-
-    fedp = theta * weights + (1 - theta) * z
-    return fedp
+    new_weights = []
+    for w, m in zip(weights, mean):
+        new_w = m + theta * (w - m)
+        new_weights.append(new_w)
+    return new_weights
 
 
 def start_client_tl(client_n, names, cluster):
@@ -991,7 +991,7 @@ def start_client_tl(client_n, names, cluster):
     json_file.close()
     loaded_model = model_from_json(loaded_model_json)
     loaded_model.load_weights(
-        "/home/enrique/flower/TL_IAS/transfer-learning/modelsProtoScaled5/mod" + str(cluster + 1) + ".h5")
+        "/home/enrique/flower/TL_IAS/transfer-learning/modelsProtoScaled5/mod" + str(cluster + 1) + ".weights.h5")
 
     model = create_model(N_OUT, n_seq, 24, n_features)
     model.set_weights(loaded_model.get_weights())
