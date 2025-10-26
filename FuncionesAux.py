@@ -906,7 +906,7 @@ class tfmlpClient(fl.client.NumPyClient):
         print("mcc: " + str(mcc))
         """
         num_examples_test = len(self.x_train)
-        loss = 0
+        loss = 0.0.0
         # Guardar en csv externo
         aux = []
         path = self.dir_met
@@ -1018,7 +1018,7 @@ def start_client_tl(client_n, names, cluster):
     print(("party " + str(client_n) + " lista"))
 
     # IP lorien 155.54.95.95
-    fl.client.start_numpy_client("[::]:8080", client=client)
+    fl.client.start_numpy_client("localhost:8080", client=client)
 
 
 
@@ -1046,7 +1046,7 @@ def start_client(client_n, lista_clientes, lastscommits):
     print(("party " + str(client_n) + " lista"))
 
     # IP lorien 155.54.95.95
-    fl.client.start_numpy_client("[::]:8080", client=client)
+    fl.client.start_numpy_client("localhost:8080", client=client)
 
 
 def start_server(parties, lista_parties, lastscommits, rounds, alp,lea):
@@ -1072,7 +1072,7 @@ def start_server(parties, lista_parties, lastscommits, rounds, alp,lea):
 
     # IP lorien 155.54.95.95
     # Start Flower server for four rounds of federated learning
-    fl.server.start_server("[::]:8080", config={"num_rounds": rounds}, strategy=strategy)
+    fl.server.start_server("localhost:8080", config={"num_rounds": rounds}, strategy=strategy)
 
 def start_server_tl(parties, rounds, alp, lea):
     print(("Adelante Server"))
@@ -1097,7 +1097,7 @@ def start_server_tl(parties, rounds, alp, lea):
     )
     # IP lorien 155.54.95.95
     # Start Flower server for four rounds of federated learning
-    fl.server.start_server("[::]:8080", config={"num_rounds": rounds}, strategy=strategy)
+    fl.server.start_server("localhost:8080", config={"num_rounds": rounds}, strategy=strategy)
 
 
 def get_eval_fn(model):
@@ -1111,7 +1111,7 @@ def get_eval_fn(model):
 
         # Update model with the latest parameters
         # loss, accuracy = model.evaluate(hist, hist)
-        loss = 0
+        loss = 0.0
         accuracy = 0
 
         return loss, {"accuracy": accuracy}
