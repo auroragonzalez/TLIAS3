@@ -906,7 +906,7 @@ class tfmlpClient(fl.client.NumPyClient):
         print("mcc: " + str(mcc))
         """
         num_examples_test = len(self.x_train)
-        loss = 0.0.0
+        loss = 0.0
         # Guardar en csv externo
         aux = []
         path = self.dir_met
