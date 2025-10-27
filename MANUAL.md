@@ -1,4 +1,5 @@
 # Manual del Proyecto TLIAS3
+
 ## Transfer Learning and Federated Learning for Energy Prediction in Smart Buildings
 
 ---
@@ -77,6 +78,7 @@ Este proyecto implementa un **framework de Transfer Learning (TL) y Federated Le
 ### 2.2 Modelo de Red Neuronal
 
 **Arquitectura ConvLSTM2D:**
+
 ```
 Input: (n_seq=7, 1, n_substeps=24, n_features=2)
   ↓
@@ -90,6 +92,7 @@ Output: 24 valores de consumo predichos
 ```
 
 **Características:**
+
 - **n_seq**: 7 secuencias (7 días de entrada)
 - **n_substeps**: 24 pasos temporales por día
 - **n_features**: 2 (consumo energético + temperatura)
@@ -111,6 +114,7 @@ Output: 24 valores de consumo predichos
 #### Paso 1: Instalar Python 3.10
 
 **En Linux/Ubuntu:**
+
 ```bash
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt update
@@ -118,6 +122,7 @@ sudo apt install python3.10 python3.10-venv python3.10-dev -y
 ```
 
 **En Windows:**
+
 - Descargar desde python.org
 - Asegurarse de marcar "Add to PATH"
 
@@ -276,16 +281,19 @@ Biblioteca central con todas las funciones del proyecto.
 ```python
 myround(x, base=5)
 ```
+
 Redondea un número al múltiplo más cercano de `base`.
 
 ```python
 split_dataset(data, factor=7, n_out=7)
 ```
+
 Divide datos en train/test (77%/23%) en ventanas temporales.
 
 ```python
 to_supervised(train, n_input, n_out=7)
 ```
+
 Convierte series temporales a formato supervisado (X, y).
 
 #### 6.1.2 Funciones de Modelado
@@ -293,17 +301,21 @@ Convierte series temporales a formato supervisado (X, y).
 ```python
 create_model(N_OUT, n_seq, n_substeps, n_features)
 ```
+
 Crea modelo ConvLSTM2D con parámetros configurables.
+
 - **N_OUT**: Horizonte de predicción (24h)
 - **n_seq**: Secuencias de entrada (7 días)
 - **n_substeps**: Pasos por secuencia (24h)
 - **n_features**: Variables de entrada (2: consumo + temp)
 
 ```python
-FitForecast_e(model, X_train, y_train, X_test, N_OUT, 
+FitForecast_e(model, X_train, y_train, X_test, N_OUT,
               n_seq, n_substeps, n_features, epochs, number, trained_model)
 ```
+
 Entrena modelo y genera predicciones.
+
 - **trained_model**: Si no es None, usa Transfer Learning
 
 #### 6.1.3 Clustering K-Prototypes
@@ -311,14 +323,18 @@ Entrena modelo y genera predicciones.
 ```python
 kprot_missing(X, n_clusters, cat_index, centroids, max_iter=10)
 ```
+
 K-Prototypes con manejo de valores faltantes.
+
 - **cat_index**: Índices de variables categóricas [1,2,3,5,7,8,10]
 - Imputa valores faltantes con media (numéricos) y moda (categóricos)
 
 ```python
 make_Kpods()
 ```
+
 Pipeline completo de clustering:
+
 1. Cargar datos de edificios
 2. Convertir variables categóricas a numéricas
 3. Ejecutar K-Prototypes (15 clusters)
@@ -329,7 +345,9 @@ Pipeline completo de clustering:
 ```python
 transfer_learning(cluster, lastCommits, resWO, resW, count, n_muestras)
 ```
+
 Evalúa Transfer Learning para un cluster:
+
 1. Carga modelo prototipo del cluster
 2. Para cada edificio del cluster:
    - Entrena SIN modelo cargado (baseline)
@@ -340,35 +358,44 @@ Evalúa Transfer Learning para un cluster:
 #### 6.1.5 Federated Learning
 
 **Clase Principal:**
+
 ```python
 class tfmlpClient(fl.client.NumPyClient)
 ```
+
 Cliente de Flower Framework con:
+
 - `fit()`: Entrenamiento local con Fed+
 - `evaluate()`: Evaluación del modelo global
 - Guarda modelos finales en última ronda
 
 **Algoritmo Fed+:**
+
 ```python
 fedplus(weights, mean, theta)
 ```
+
 ```
 new_weights = mean + theta * (local_weights - mean)
 theta = 1 / (1 + alpha * lr)
 ```
 
 **Funciones de Servidor:**
+
 ```python
 start_server(parties, lista_parties, lastscommits, rounds, alp, lea)
 start_server_tl(parties, rounds, alp, lea)
 ```
+
 Inicia servidor FL con estrategia FedAvg.
 
 **Funciones de Cliente:**
+
 ```python
 start_client(client_n, lista_clientes, lastscommits)
 start_client_tl(client_n, names, cluster)
 ```
+
 Inicia cliente FL que se conecta al servidor.
 
 #### 6.1.6 Métricas
@@ -376,7 +403,9 @@ Inicia cliente FL que se conecta al servidor.
 ```python
 compute_metrics_fn(y_valid_resc, y_hat_resc)
 ```
+
 Calcula 5 métricas:
+
 - **MAE**: Mean Absolute Error
 - **MSE**: Mean Squared Error
 - **RMSE**: Root Mean Squared Error
@@ -392,6 +421,7 @@ Calcula 5 métricas:
 **Propósito:** Agrupar edificios en 15 clusters usando K-Prototypes.
 
 **Características usadas:**
+
 1. `energystarscore` (num)
 2. `heatingtype` (cat)
 3. `industry` (cat)
@@ -405,12 +435,14 @@ Calcula 5 métricas:
 11. `primaryspaceuse_abbrev` (cat)
 
 **Ejecución:**
+
 ```bash
 cd 01.k-prot-clustering
 python clustering-iii15.py
 ```
 
 **Outputs:**
+
 - `kprototypes-labels-dist-iii15.csv`: Labels y distancias
 - `kprototypes-centroids-iii15.csv`: Centroides de cada cluster
 - `kprototypes-df-iii15.csv`: Datos originales
@@ -423,6 +455,7 @@ python clustering-iii15.py
 **Propósito:** Entrenar 15 modelos prototipo (uno por cluster).
 
 **Proceso:**
+
 1. Para cada cluster (0-14):
    - Identifica edificio más cercano al centroide
    - Descarga datos de consumo y temperatura
@@ -431,11 +464,13 @@ python clustering-iii15.py
    - Guarda modelo (.json + .weights.h5) y métricas
 
 **Ejecución:**
+
 ```bash
 python 00.createModelsScaled-i.py
 ```
 
 **Outputs:**
+
 ```
 transfer-learning/modelsProtoScaled5/
 ├── mod0.json, mod0.weights.h5, mod0_metrics.csv
@@ -445,36 +480,130 @@ transfer-learning/modelsProtoScaled5/
 
 ---
 
-### 7.3 Transfer Learning: lanzador.py
+### 7.3 Transfer Learning y Federated Learning: lanzador.py
 
-**Propósito:** Evaluar Transfer Learning en todos los edificios.
+**Propósito:** Evaluar Transfer Learning en todos los edificios O ejecutar Federated Learning con edificios representativos.
 
-**Configuración:**
-```python
-k = 2  # Número de clusters a procesar
-rondas = 15  # Rondas FL (si se activa)
-n_muestras = -2000  # Últimas 2000 muestras
+**Modos de Ejecución:**
+
+El script ahora soporta dos modos de ejecución mediante argumentos de línea de comandos:
+
+1. **Modo TL (Transfer Learning)**: Evalúa TL en todos los edificios
+2. **Modo FL (Federated Learning)**: Ejecuta FL con los edificios representativos
+
+**Argumentos:**
+
+```bash
+python lanzador.py [--mode {TL,FL}] [--clusters N] [--rounds N] [--samples N] [--alpha X] [--lr X]
 ```
 
-**Proceso:**
+| Argumento    | Descripción                               | Por defecto |
+| ------------ | ----------------------------------------- | ----------- |
+| `--mode`     | Modo de ejecución: `TL` o `FL`            | `TL`        |
+| `--clusters` | Número de clusters a procesar             | `15`        |
+| `--rounds`   | Número de rondas para FL                  | `15`        |
+| `--samples`  | Número de muestras (negativo = últimas N) | `-2000`     |
+| `--alpha`    | Parámetro alpha para Fed+                 | `2.9`       |
+| `--lr`       | Learning rate                             | `0.001`     |
+
+**Ejemplos de Uso:**
+
+**1. Ejecutar Transfer Learning (modo por defecto):**
+
+```bash
+# Transfer Learning con configuración por defecto (15 clusters, -2000 muestras)
+python lanzador.py
+
+# Transfer Learning con 10 clusters
+python lanzador.py --mode TL --clusters 10
+
+# Transfer Learning con solo las últimas 1000 muestras
+python lanzador.py --mode TL --samples -1000
+```
+
+**2. Ejecutar Federated Learning:**
+
+```bash
+# Federated Learning con configuración por defecto
+python lanzador.py --mode FL
+
+# FL con parámetros personalizados
+python lanzador.py --mode FL --rounds 20 --alpha 2.5 --lr 0.0001
+
+# FL con menos clusters (prototipos)
+python lanzador.py --mode FL --clusters 10 --rounds 10
+```
+
+**Proceso en Modo TL:**
+
 1. Crea clientes (edificios representativos de cada cluster)
-2. **Opción A:** Ejecuta FL (comentado por defecto)
-3. **Opción B:** Ejecuta Transfer Learning:
-   - Para cada cluster (0-14):
-     - Para cada edificio del cluster:
-       - Entrena modelo baseline (sin TL)
-       - Entrena modelo con TL
-       - Compara métricas
+2. Lee labels del clustering
+3. Para cada cluster (0 a k-1):
+   - Para cada edificio del cluster:
+     - Entrena modelo baseline (sin TL)
+     - Entrena modelo con TL
+     - Compara métricas
+4. Guarda resultados comparativos
+
+**Proceso en Modo FL:**
+
+1. Crea clientes (edificios representativos de cada cluster)
+2. Inicia servidor FL en localhost:8080
+3. Espera 30s para que servidor esté listo
+4. Lanza k procesos cliente en paralelo
+5. Cada cliente:
+   - Carga sus datos
+   - Entrena localmente con Fed+
+   - Envía pesos al servidor
+6. Servidor agrega pesos (FedAvg)
+7. Repite por `rounds` iteraciones
+
+**Outputs:**
+
+**Modo TL:**
+
+- `resWO-15-i.csv`: Resultados SIN Transfer Learning
+- `resW-15-i.csv`: Resultados CON Transfer Learning
+- `metricas_TL/cluster_{i}/edificio_{j}.csv`: Métricas detalladas por edificio
+
+**Modo FL:**
+
+- `metricas/Metricas_cliente_{i}.csv`: Métricas por cliente (i=1 a k)
+- `transfer-learning/modelsProtoScaled5/mod{i}.json`: Modelos entrenados (última ronda)
+- `transfer-learning/modelsProtoScaled5/mod{i}.weights.h5`: Pesos de modelos
 
 **Ejecución:**
+
 ```bash
+# Modo Transfer Learning (por defecto)
 python lanzador.py
+
+# Modo Federated Learning
+python lanzador.py --mode FL
 ```
 
 **Outputs:**
+
+**Modo TL:**
+
 - `metricas_TL/cluster_{i}/edificio_{j}.csv`
 - `resWO-15-i.csv` (resultados sin TL)
 - `resW-15-i.csv` (resultados con TL)
+
+**Modo FL:**
+
+- `metricas/Metricas_cliente_{i}.csv` (i=1 a k)
+
+**Verificación:**
+
+```bash
+# Verificar resultados TL
+ls resWO-15-i.csv resW-15-i.csv
+ls metricas_TL/cluster_*/edificio_*.csv
+
+# Verificar resultados FL
+ls metricas/Metricas_cliente_*.csv
+```
 
 ---
 
@@ -483,19 +612,23 @@ python lanzador.py
 **Propósito:** Ejecutar FL con 15 clientes (uno por cluster) con parámetros ajustables.
 
 **Argumentos:**
+
 ```bash
 python lanzador_parse.py <alpha> <lr>
 ```
+
 - **alpha**: Parámetro del algoritmo Fed+ (ej: 2.9)
 - **lr**: Learning rate (ej: 0.001)
 
 **Configuración:**
+
 ```python
 rondas = 4  # Número de rondas FL
 n_clientes = 15  # 15 clientes (prototipos)
 ```
 
 **Proceso:**
+
 1. Crea 15 clientes (edificios representativos)
 2. Inicia servidor FL en localhost:8080
 3. Espera 30s para que servidor esté listo
@@ -508,11 +641,13 @@ n_clientes = 15  # 15 clientes (prototipos)
 7. Repite por `rondas` iteraciones
 
 **Ejecución:**
+
 ```bash
 python lanzador_parse.py 2.9 0.001
 ```
 
 **Outputs:**
+
 - `metricas/Metricas_cliente_{i}.csv` (i=1 a 15)
 
 ---
@@ -522,17 +657,20 @@ python lanzador_parse.py 2.9 0.001
 **Propósito:** FL solo con edificios del mismo cluster.
 
 **Argumentos:**
+
 ```bash
 python fl_mismocluster.py <alpha> <lr>
 ```
 
 **Configuración:**
+
 ```python
 cluster = 1  # Cluster a procesar
 rondas = 3
 ```
 
 **Proceso:**
+
 1. Identifica edificios del `cluster` especificado
 2. Cuenta número de edificios → número de clientes
 3. Inicia servidor FL con TL (usa modelo prototipo)
@@ -540,6 +678,7 @@ rondas = 3
 5. Entrenamiento FL dentro del cluster
 
 **Ejecución:**
+
 ```bash
 python fl_mismocluster.py 2.9 0.001
 ```
@@ -551,17 +690,21 @@ python fl_mismocluster.py 2.9 0.001
 **Propósito:** FL con TODOS los edificios de un cluster específico (no solo el representativo).
 
 **Argumentos:**
+
 ```bash
 python lanzador_allClients.py <cluster> <alpha> <lr>
 ```
+
 - **cluster**: ID del cluster (0-14)
 
 **Proceso:**
+
 1. Lee labels del clustering
 2. Obtiene TODOS los edificios del cluster
 3. Lanza FL con todos ellos
 
 **Ejecución:**
+
 ```bash
 python lanzador_allClients.py 0 2.9 0.001
 ```
@@ -573,6 +716,7 @@ python lanzador_allClients.py 0 2.9 0.001
 **Propósito:** Generar gráficos de barras comparativos.
 
 **Ejemplo de uso:**
+
 ```python
 # Comparar métricas de los 15 prototipos
 cvrmse = [6.48, 34.86, 8.18, ...]  # Para cada cluster
@@ -611,6 +755,7 @@ cd ..
 ```
 
 **Verificación:**
+
 ```bash
 # Deben existir:
 ls 01.k-prot-clustering/kprototypes-labels-dist-iii15.csv
@@ -626,6 +771,7 @@ python 00.createModelsScaled-i.py
 **Duración:** ~30-60 minutos (depende de hardware)
 
 **Verificación:**
+
 ```bash
 # Deben existir 15 modelos:
 ls transfer-learning/modelsProtoScaled5/mod*.json
@@ -635,12 +781,20 @@ ls transfer-learning/modelsProtoScaled5/mod*.weights.h5
 #### PASO 4A: Evaluar Transfer Learning
 
 ```bash
+# Ejecutar en modo Transfer Learning (por defecto)
 python lanzador.py
+
+# O especificar explícitamente el modo TL
+python lanzador.py --mode TL
+
+# Con configuración personalizada
+python lanzador.py --mode TL --clusters 10 --samples -1000
 ```
 
 **Duración:** Varias horas (procesa ~500 edificios)
 
 **Verificación:**
+
 ```bash
 ls metricas_TL/cluster_*/edificio_*.csv
 ls resWO-15-i.csv  # Sin TL
@@ -649,23 +803,37 @@ ls resW-15-i.csv   # Con TL
 
 #### PASO 4B: Ejecutar Federated Learning
 
-**Opción 1: FL con 15 Prototipos**
+**Opción 1: FL con Prototipos (15 clientes representativos)**
+
+```bash
+# Ejecutar en modo Federated Learning
+python lanzador.py --mode FL
+
+# Con parámetros personalizados
+python lanzador.py --mode FL --rounds 20 --alpha 2.5 --lr 0.0001
+```
+
+**Opción 2: FL con Parámetros Específicos**
+
 ```bash
 python lanzador_parse.py 2.9 0.001
 ```
 
-**Opción 2: FL dentro de un Cluster**
+**Opción 3: FL dentro de un Cluster**
+
 ```bash
 # Editar fl_mismocluster.py: cambiar cluster = 1 al deseado
 python fl_mismocluster.py 2.9 0.001
 ```
 
-**Opción 3: FL con Todos los Edificios de un Cluster**
+**Opción 4: FL con Todos los Edificios de un Cluster**
+
 ```bash
 python lanzador_allClients.py 0 2.9 0.001  # Cluster 0
 ```
 
 **Verificación:**
+
 ```bash
 ls metricas/Metricas_cliente_*.csv
 ```
@@ -733,37 +901,42 @@ done
 
 ### 9.1 Métricas Utilizadas
 
-| Métrica | Fórmula | Interpretación |
-|---------|---------|----------------|
-| **MAE** | $\frac{1}{n}\sum \|y_i - \hat{y}_i\|$ | Error absoluto medio |
-| **MSE** | $\frac{1}{n}\sum (y_i - \hat{y}_i)^2$ | Error cuadrático medio |
-| **RMSE** | $\sqrt{MSE}$ | Raíz del error cuadrático |
-| **CVRMSE** | $\frac{RMSE}{\bar{y}} \times 100$ | RMSE normalizado (%) |
-| **MAPE** | $\frac{1}{n}\sum \frac{\|y_i - \hat{y}_i\|}{y_i} \times 100$ | Error porcentual medio |
+| Métrica    | Fórmula                                                      | Interpretación            |
+| ---------- | ------------------------------------------------------------ | ------------------------- |
+| **MAE**    | $\frac{1}{n}\sum \|y_i - \hat{y}_i\|$                        | Error absoluto medio      |
+| **MSE**    | $\frac{1}{n}\sum (y_i - \hat{y}_i)^2$                        | Error cuadrático medio    |
+| **RMSE**   | $\sqrt{MSE}$                                                 | Raíz del error cuadrático |
+| **CVRMSE** | $\frac{RMSE}{\bar{y}} \times 100$                            | RMSE normalizado (%)      |
+| **MAPE**   | $\frac{1}{n}\sum \frac{\|y_i - \hat{y}_i\|}{y_i} \times 100$ | Error porcentual medio    |
 
 **Métrica Principal:** **CVRMSE** (usado en papers de energía)
 
 ### 9.2 Estructura de Archivos de Resultados
 
 #### Métricas FL (metricas/)
+
 ```csv
 MAE,MSE,RSME,CVRMSE,MAPE
 2.98,14.81,3.85,6.48,4.98
 1.99,11.13,3.34,34.86,400.01
 ...
 ```
+
 Cada fila = 1 ronda de FL
 
 #### Métricas TL (metricas_TL/cluster_X/edificio_Y.csv)
+
 ```csv
 Cargado,MAE,MSE,RSME,CVRMSE,MAPE,Muestras
 Si,2.5,10.2,3.2,8.5,5.1,-2000
 No,3.1,12.5,3.5,9.2,6.3,-2000
 ```
+
 - **Cargado=Si:** Con Transfer Learning
 - **Cargado=No:** Sin Transfer Learning
 
 #### Resultados Comparativos TL (02.tl/)
+
 ```csv
 cluster,edificio_id,MAE,MSE,RMSE,CVRMSE,MAPE
 0,5,2.98,14.81,3.85,6.48,4.98
@@ -774,6 +947,7 @@ cluster,edificio_id,MAE,MSE,RMSE,CVRMSE,MAPE
 ### 9.3 Resultados Esperados
 
 **CVRMSE típico por tipo de edificio:**
+
 - **Oficinas:** 6-10%
 - **Escuelas Primarias:** 8-12%
 - **Universidades (aulas):** 20-35%
@@ -793,6 +967,7 @@ cluster,edificio_id,MAE,MSE,RMSE,CVRMSE,MAPE
 #### Error: "ModuleNotFoundError: No module named 'flwr'"
 
 **Solución:**
+
 ```bash
 pip install flwr==0.19.0
 ```
@@ -800,6 +975,7 @@ pip install flwr==0.19.0
 #### Error: "GPU memory allocation failed"
 
 **Solución:**
+
 ```python
 # Ya implementado en scripts:
 os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
@@ -810,6 +986,7 @@ os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
 **Causa:** Servidor no está listo cuando clientes intentan conectar.
 
 **Solución:**
+
 ```python
 # Aumentar tiempo de espera en scripts:
 time.sleep(30)  # Cambiar a 60 si es necesario
@@ -818,6 +995,7 @@ time.sleep(30)  # Cambiar a 60 si es necesario
 #### Error: "FileNotFoundError: kprototypes-labels-dist-iii15.csv"
 
 **Solución:**
+
 ```bash
 # Ejecutar clustering primero:
 cd 01.k-prot-clustering
@@ -833,6 +1011,7 @@ python clustering-iii15.py
 ### 10.2 Optimización de Rendimiento
 
 #### Para GPU limitada:
+
 ```python
 # En scripts, reducir batch size:
 config = {
@@ -842,14 +1021,16 @@ config = {
 ```
 
 #### Para acelerar clustering:
+
 ```python
 # En clustering-iii15.py:
-cls = KPrototypes(n_clusters=15, init='Huang', 
+cls = KPrototypes(n_clusters=15, init='Huang',
                   n_init=1,  # Reducir de 10 a 1
                   max_iter=100)  # Reducir de 1000 a 100
 ```
 
 #### Para reducir tiempo de entrenamiento:
+
 ```python
 # En 00.createModelsScaled-i.py:
 n_epochs = 5  # Ya está en mínimo
@@ -860,6 +1041,7 @@ dataset = dataset[-1000:]  # En lugar de todo el dataset
 ### 10.3 Debugging
 
 #### Verificar datos de un edificio:
+
 ```python
 from FuncionesAux import *
 refs = lsremote('https://bitbucket.org/aurorax/datangi')
@@ -871,6 +1053,7 @@ print(cons.shape)
 ```
 
 #### Ver labels de clustering:
+
 ```python
 import pandas as pd
 labels = pd.read_csv('01.k-prot-clustering/kprototypes-labels-dist-iii15.csv')
@@ -878,6 +1061,7 @@ print(labels.groupby(labels.columns[1]).size())  # Edificios por cluster
 ```
 
 #### Verificar modelo guardado:
+
 ```python
 from keras.models import model_from_json
 import os
@@ -897,6 +1081,7 @@ print(model.summary())
 ### A. Configuración de Hiperparámetros
 
 **Parámetros del Modelo:**
+
 ```python
 N_OUT = 24              # Horizonte predicción (horas)
 n_seq = 7               # Días de entrada
@@ -910,12 +1095,14 @@ loss = 'mse'            # Función de pérdida
 ```
 
 **Parámetros de Entrenamiento:**
+
 ```python
 epochs = 300            # Épocas entrenamiento local
 train_split = 0.77      # 77% train, 23% test
 ```
 
 **Parámetros Federated Learning:**
+
 ```python
 rondas = 4              # Rondas FL
 alpha = 2.9             # Parámetro Fed+
@@ -927,12 +1114,14 @@ min_fit_clients = 15    # Mínimo clientes
 ### B. Datasets Utilizados
 
 **Fuente de Datos:**
+
 - **Repositorio:** https://bitbucket.org/aurorax/datangi
 - **Studies:**
   - Study 1: Edificios comerciales/educativos
   - Study 2 (I-BLEND): Edificios adicionales
 
 **Archivos:**
+
 - `{building}-tsCons.csv`: Series temporales de consumo
 - `t{building}-ts.csv`: Series temporales de temperatura
 - `meta_open.csv`: Metadatos de edificios
@@ -940,11 +1129,13 @@ min_fit_clients = 15    # Mínimo clientes
 ### C. Referencias
 
 **Algoritmos:**
+
 - K-Prototypes: Huang, Z. (1998)
 - Federated Learning: McMahan et al. (2017) - FedAvg
 - Fed+: Extensión de FedAvg con regularización
 
 **Frameworks:**
+
 - Flower: https://flower.dev/
 - TensorFlow: https://tensorflow.org/
 - kmodes: https://github.com/nicodv/kmodes
