@@ -63,16 +63,16 @@ Este proyecto implementa un **framework de Transfer Learning (TL) y Federated Le
    ├── Output: Predicción 24h
    └── Guardar: modelsProtoScaled5/mod{i}.json + .weights.h5
 
-3. TRANSFER LEARNING
-   ├── Cargar modelo del cluster correspondiente
-   ├── Fine-tuning con datos del edificio específico
-   └── Comparar: Con TL vs Sin TL
-
-4. FEDERATED LEARNING
+3. FEDERATED LEARNING
    ├── Servidor: Coordina entrenamiento (FedAvg + Fed+)
    ├── Clientes: Entrenan localmente
    ├── Agregación: Promedio ponderado de pesos
    └── Iteraciones: Múltiples rondas (rounds)
+
+4. TRANSFER LEARNING
+   ├── Cargar modelo del cluster correspondiente
+   ├── Fine-tuning con datos del edificio específico
+   └── Comparar: Con TL vs Sin TL
 ```
 
 ### 2.2 Modelo de Red Neuronal

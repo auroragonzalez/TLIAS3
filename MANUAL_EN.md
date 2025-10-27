@@ -63,16 +63,16 @@ This project implements a **Transfer Learning (TL) and Federated Learning (FL) f
    ├── Output: 24h prediction
    └── Save: modelsProtoScaled5/mod{i}.json + .weights.h5
 
-3. TRANSFER LEARNING
-   ├── Load model from corresponding cluster
-   ├── Fine-tuning with specific building data
-   └── Compare: With TL vs Without TL
-
-4. FEDERATED LEARNING
+3. FEDERATED LEARNING
    ├── Server: Coordinates training (FedAvg + Fed+)
    ├── Clients: Train locally
    ├── Aggregation: Weighted average of weights
    └── Iterations: Multiple rounds
+
+4. TRANSFER LEARNING
+   ├── Load model from corresponding cluster
+   ├── Fine-tuning with specific building data
+   └── Compare: With TL vs Without TL
 ```
 
 ### 2.2 Neural Network Model
