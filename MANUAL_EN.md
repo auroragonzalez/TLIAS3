@@ -244,19 +244,19 @@ TLIAS3/
                   │
                   ▼
 ┌────────────────────────────────────────────────────────────┐
-│              STEP 3A: TRANSFER LEARNING                     │
-│  Adapt prototype model to individual buildings             │
-│  Script: lanzador.py (transfer_learning function)          │
-│  Output: metricas_TL/cluster_{i}/edificio_{j}.csv          │
-└─────────────────┬──────────────────────────────────────────┘
-                  │
-                  ▼
-┌────────────────────────────────────────────────────────────┐
-│              STEP 3B: FEDERATED LEARNING                    │
+│              STEP 3A: FEDERATED LEARNING                    │
 │  Distributed collaborative training (Fed+)                  │
 │  Scripts: lanzador_parse.py, fl_mismocluster.py,          │
 │           lanzador_allClients.py                           │
 │  Output: metricas/Metricas_cliente_{i}.csv                 │
+└─────────────────┬──────────────────────────────────────────┘
+                  │
+                  ▼
+┌────────────────────────────────────────────────────────────┐
+│              STEP 3B: TRANSFER LEARNING                     │
+│  Adapt prototype model to individual buildings             │
+│  Script: lanzador.py (transfer_learning function)          │
+│  Output: metricas_TL/cluster_{i}/edificio_{j}.csv          │
 └─────────────────┬──────────────────────────────────────────┘
                   │
                   ▼
