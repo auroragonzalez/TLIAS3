@@ -778,7 +778,25 @@ ls transfer-learning/modelsProtoScaled5/mod*.json
 ls transfer-learning/modelsProtoScaled5/mod*.weights.h5
 ```
 
-#### PASO 4A: Evaluar Transfer Learning
+#### PASO 4A: Ejecutar Federated Learning
+
+**Opción 1: FL con Prototipos (15 clientes representativos)**
+
+```bash
+# Ejecutar en modo Federated Learning
+python lanzador.py --mode FL
+
+# Con parámetros personalizados
+python lanzador.py --mode FL --rounds 20 --alpha 2.5 --lr 0.0001
+```
+
+**Verificación:**
+
+```bash
+ls metricas/Metricas_cliente_*.csv
+```
+
+#### PASO 4B: Evaluar Transfer Learning
 
 ```bash
 # Ejecutar en modo Transfer Learning (por defecto)
@@ -800,10 +818,6 @@ ls metricas_TL/cluster_*/edificio_*.csv
 ls resWO-15-i.csv  # Sin TL
 ls resW-15-i.csv   # Con TL
 ```
-
-#### PASO 4B: Ejecutar Federated Learning
-
-**Opción 1: FL con Prototipos (15 clientes representativos)**
 
 ```bash
 # Ejecutar en modo Federated Learning
