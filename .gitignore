@@ -1,7 +1,9 @@
 /metricas/*
+!metricas/.gitkeep
 /excellCity-FLTL
 /transfer-learning
 /metricas_TL/*
+!metricas_TL/.gitkeep
 /__pycache__
 *.pyc
 
