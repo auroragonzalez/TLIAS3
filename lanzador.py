@@ -27,7 +27,7 @@ parser.add_argument('--mode', type=str, choices=['TL', 'FL'], default='TL',
                     help='Modo de ejecución: TL (Transfer Learning) o FL (Federated Learning)')
 parser.add_argument('--clusters', type=int, default=15,
                     help='Número de clusters a procesar (por defecto: 15)')
-parser.add_argument('--rounds', type=int, default=15,
+parser.add_argument('--rounds', type=int, default=2,
                     help='Número de rondas para FL (por defecto: 15)')
 parser.add_argument('--samples', type=int, default=-2000,
                     help='Número de muestras a usar (negativo = últimas N muestras, por defecto: -2000)')
@@ -112,40 +112,41 @@ if mode == 'FL':
     print(f"Learning Rate: {lr}")
     print(f"{'='*60}\n")
     
-    inicio = time.time()
-    
     # Iniciar servidor FL
-    print("Iniciando servidor FL...")
-    server = multiprocessing.Process(target=start_server, args=(n_clientes, lista_clientes, lastCommits, rondas, alpha, lr))
-    server.start()
-    time.sleep(30)  # Esperar a que el servidor esté listo
-    
-    # Iniciar clientes FL
-    print(f"Iniciando {n_clientes} clientes FL...")
-    for i in range(n_clientes):
-        inx = i + 1
-        p = multiprocessing.Process(target=start_client, args=(inx, lista_clientes, lastCommits))
-        p.start()
-        clients.append(p)
-        print(f"  Cliente {inx}/{n_clientes} iniciado")
-    
-    # Esperar a que terminen todos los procesos
-    print("\nEsperando finalización del servidor...")
-    server.join()
-    print("Esperando finalización de clientes...")
-    for client in clients:
-        client.join()
-    
-    fin = time.time()
-    tiempo = fin - inicio
-    
-    print(f"\n{'='*60}")
-    print(f"FEDERATED LEARNING COMPLETADO")
-    print(f"Tiempo total: {tiempo:.2f} segundos ({tiempo/60:.2f} minutos)")
-    print(f"Resultados guardados en: metricas/Metricas_cliente_*.csv")
-    print(f"{'='*60}\n")
-    
-    del fin, inicio
+
+    if __name__ == '__main__':
+        inicio = time.time()
+        print("Iniciando servidor FL...")
+        server = multiprocessing.Process(target=start_server, args=(n_clientes, lista_clientes, lastCommits, rondas, alpha, lr))
+        server.start()
+        time.sleep(30)  # Esperar a que el servidor esté listo
+        
+        # Iniciar clientes FL
+        print(f"Iniciando {n_clientes} clientes FL...")
+        for i in range(n_clientes):
+            inx = i + 1
+            p = multiprocessing.Process(target=start_client, args=(inx, lista_clientes, lastCommits))
+            p.start()
+            clients.append(p)
+            print(f"  Cliente {inx}/{n_clientes} iniciado")
+        
+        # Esperar a que terminen todos los procesos
+        print("\nEsperando finalización del servidor...")
+        server.join()
+        print("Esperando finalización de clientes...")
+        for client in clients:
+            client.join()
+        
+        fin = time.time()
+        tiempo = fin - inicio
+        
+        print(f"\n{'='*60}")
+        print(f"FEDERATED LEARNING COMPLETADO")
+        print(f"Tiempo total: {tiempo:.2f} segundos ({tiempo/60:.2f} minutos)")
+        print(f"Resultados guardados en: metricas/Metricas_cliente_*.csv")
+        print(f"{'='*60}\n")
+        
+        del fin, inicio
 
 # ==============================================================================
 # MODO TRANSFER LEARNING

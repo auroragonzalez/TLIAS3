@@ -1,7 +1,7 @@
-/metricas
+/metricas/*
 /excellCity-FLTL
 /transfer-learning
-/metricas_TL
+/metricas_TL/*
 /__pycache__
 *.pyc
 
